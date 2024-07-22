@@ -1,13 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Personal Budget Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Personal Budget Tracker</title>
 </head>
+
 <body>
-    <div id="root"></div>
-    <script src="app.js"></script>
+  <div id="root">
+    <nav>
+      <h1>Budget Tracker</h1>
+      <button type="button">Dark Mode</button>
+    </nav>
+
+    <section id="stats">
+      <div>
+        <span></span>
+        <h2>Total Income</h2>
+        <p data-js-id="totalIncome">$5,000</p>
+      </div>
+      <div>
+        <span></span>
+        <h2>Total Expenses</h2>
+        <p data-js-id="totalExpenses">$5,000</p>
+      </div>
+      <div>
+        <span></span>
+        <h2>Balance</h2>
+        <p data-js-id="balance">$5,000</p>
+      </div>
+      <button type="button" data-js-id="addTransactionButton">
+        <span>+</span>
+        <span>New Transaction</span>
+      </button>
+    </section>
+
+    <section id="transactions">
+      <h2>Transactions</h2>
+
+      <ul data-js-id="transactions">
+        <li>
+          <div>
+            <p>+$10,000</p>
+            <p>Transaction details</p>
+          </div>
+          <div>
+            <button type="button">Edit</button>
+            <button type="button">Delete</button>
+          </div>
+        </li>
+
+        <li>
+          <div>
+            <p>-$5,000</p>
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, fugit possimus consequuntur modi
+              eveniet iure maiores nobis quo totam facere?</p>
+          </div>
+          <div>
+            <button type="button">Edit</button>
+            <button type="button">Delete</button>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <dialog data-js-id="modalContainer" open="open">
+      <div>
+        <button type="button">x</button>
+        <h1>Add new</h1>
+        <form data-js-id="modalForm">
+          <div>
+            <label for="input-description">Description:</label>
+            <input id="input-description" name="description" type="text">
+          </div>
+
+          <div>
+            <label for="input-ammount">Amount:</label>
+            <input id="input-ammount" name="amount" type="number">
+          </div>
+
+          <div>
+            <h2>Transaction type</h2>
+
+            <label for="input-income">Income</label>
+            <input id="input-income" name="transactionType" type="radio" value="income">
+
+            <label for="input-expenses">Expenses</label>
+            <input id="input-expenses" name="transactionType" type="radio" value="expenses">
+          </div>
+
+          <button data-js-id="formSubmitButton" type="submit">Add</button>
+      </div>
+
+      </form>
+    </dialog>
+  </div>
+  <script src="app.js"></script>
 </body>
+
 </html>
