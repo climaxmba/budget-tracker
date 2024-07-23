@@ -24,14 +24,14 @@
             d="M3,6H21V18H3V6M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M7,8A2,2 0 0,1 5,10V14A2,2 0 0,1 7,16H17A2,2 0 0,1 19,14V10A2,2 0 0,1 17,8H7Z" />
         </svg>
         <h2>Total Income</h2>
-        <p data-js-id="totalIncome">$5,000</p>
+        <p data-js-id="totalIncome">$0</p>
       </div>
       <div id="total-expense" class="stat-item">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M5,14H19V15H5V14M21,17V8H3V17H21M1,5H23V19H1V5M5,10H12V12H5V10Z" />
         </svg>
-        <h2>Total Expenses</h2>
-        <p data-js-id="totalExpenses">$5,000</p>
+        <h2>Total Expense</h2>
+        <p data-js-id="totalExpense">$0</p>
       </div>
       <div id="balance" class="stat-item">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
             d="M5,3C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V16.72C21.59,16.37 22,15.74 22,15V9C22,8.26 21.59,7.63 21,7.28V5A2,2 0 0,0 19,3H5M5,5H19V7H13A2,2 0 0,0 11,9V15A2,2 0 0,0 13,17H19V19H5V5M13,9H20V15H13V9M16,10.5A1.5,1.5 0 0,0 14.5,12A1.5,1.5 0 0,0 16,13.5A1.5,1.5 0 0,0 17.5,12A1.5,1.5 0 0,0 16,10.5Z" />
         </svg>
         <h2>Balance</h2>
-        <p data-js-id="balance">$5,000</p>
+        <p data-js-id="balance">$0</p>
       </div>
       <button id="new-transaction" class="icon-btn stat-item" type="button" title="Create new transaction" data-js-id="addTransactionButton">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -52,8 +52,9 @@
     <section id="transactions">
       <h2>Transactions</h2>
 
-      <ul data-js-id="transactions">
-        <li class="transaction-item">
+      <ul data-js-id="transactionList">
+        <span id="no-transactions">Oops! No transaction here, click the "Add new" button to create one.</span>
+        <!-- <li class="transaction-item">
           <div>
             <p class="price">+ $10,000</p>
             <p class="description">Transaction details</p>
@@ -72,43 +73,22 @@
               </svg>
             </button>
           </div>
-        </li>
-
-        <li class="transaction-item">
-          <div>
-            <p class="price">- $5,000</p>
-            <p class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi, fugit possimus consequuntur modi
-              eveniet iure maiores nobis quo totam facere?</p>
-          </div>
-          <div>
-            <button class="icon-btn" type="button" title="Edit">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z" />
-              </svg>
-            </button>
-            <button class="icon-btn" type="button" title="Delete">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
-              </svg>
-            </button>
-          </div>
+        </li> -->
         </li>
       </ul>
     </section>
 
-    <dialog data-js-id="modalContainer">
+    <dialog data-js-id="dialog">
       <div id="modal">
-        <button id="close-btn" class="icon-btn" type="button" title="Close">
+        <button id="close-btn" class="icon-btn" type="button" title="Close" data-js-id="closeModalButton">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path
               d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" />
           </svg>
         </button>
-        <h1>Add new</h1>
+        <h1 data-js-id="modalTitle">Add new</h1>
         <form data-js-id="modalForm">
-          <div class="field">
+          <!-- <div class="field">
             <label for="input-description">Description:</label>
             <input id="input-description" name="description" type="text" placeholder="Example: Shoes">
           </div>
@@ -121,14 +101,14 @@
           <div>
             <h2>Transaction type</h2>
 
-            <input id="input-expenses" name="transactionType" type="radio" value="expenses" checked>
-            <label for="input-expenses">Expenses</label>
+            <input id="input-expense" name="type" type="radio" value="expense" checked>
+            <label for="input-expense">Expense</label>
 
-            <input id="input-income" name="transactionType" type="radio" value="income">
+            <input id="input-income" name="type" type="radio" value="income">
             <label for="input-income">Income</label>
           </div>
 
-          <button data-js-id="formSubmitButton" type="submit">Add</button>
+          <button data-js-id="formSubmitButton" type="submit">Add</button> -->
       </div>
 
       </form>

@@ -143,6 +143,13 @@ nav h1 {
   gap: 0.7rem;
 }
 
+#no-transactions {
+  font-style: italic;
+  text-align: center;
+  opacity: 0.6;
+  margin: 1rem;
+}
+
 .transaction-item {
   border-radius: 8px;
   padding: 0.5rem;

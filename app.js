@@ -1,1 +1,191 @@
+(() => {
+  const pubSub = (function () {
+    let events = {};
 
+    function subscribe(event, fn) {
+      events[event] ? events[event].push(fn) : (events[event] = [fn]);
+    }
+    function unSubscribe(event, fn) {
+      if (events[event]) {
+        events[event] = events[event].filter((func) => func !== fn);
+      }
+    }
+    function publish(event, data) {
+      if (events[event]) events[event].forEach((fn) => fn(data));
+    }
+
+    return { subscribe, unSubscribe, publish };
+  })();
+
+  const events = {
+    newTransactionSubmitted: "newTransactionSubmitted",
+    transactionsChanged: "transactionsChanged",
+  };
+
+  const transaction = (() => {
+    const transactions = [];
+
+    function init() {
+      pubSub.subscribe(events.newTransactionSubmitted, addTransaction);
+    }
+
+    function getRandomId() {
+      const id = Math.floor(Math.random() * 10000000).toString(16);
+
+      // Recursively try to generate a unique random id
+      if (transactions.every((transaction) => transaction.id !== id)) return id;
+      else return getRandomId();
+    }
+
+    function addTransaction(data) {
+      transactions.push({ ...data, id: getRandomId() });
+      pubSub.publish(events.transactionsChanged, transactions);
+    }
+
+    return { init };
+  })();
+
+  const display = (() => {
+    const dom = {
+      totalIncome: document.querySelector("[data-js-id='totalIncome']"),
+      totalExpense: document.querySelector("[data-js-id='totalExpense']"),
+      balance: document.querySelector("[data-js-id='balance']"),
+      addTransactionButton: document.querySelector(
+        "[data-js-id='addTransactionButton']"
+      ),
+      transactionList: document.querySelector("[data-js-id='transactionList']"),
+      dialog: document.querySelector("[data-js-id='dialog']"),
+      modalTitle: document.querySelector("[data-js-id='modalTitle']"),
+      modalForm: document.querySelector("[data-js-id='modalForm']"),
+      closeModalButton: document.querySelector(
+        "[data-js-id='closeModalButton']"
+      ),
+    };
+
+    function init() {
+      pubSub.subscribe(events.transactionsChanged, (data) => {
+        refreshTransactionList(data);
+        updateStats(data);
+      });
+      dom.addTransactionButton.addEventListener(
+        "click",
+        openNewTransactionModal
+      );
+      dom.closeModalButton.addEventListener("click", closeModal)
+      dom.dialog.addEventListener("click",(e) => e.target === e.currentTarget && closeModal())
+    }
+
+    function openNewTransactionModal() {
+      dom.modalTitle.textContent = "New Transaction";
+      dom.modalForm.innerHTML = `
+          <div class="field">
+            <label for="input-description">Description:</label>
+            <input id="input-description" name="description" type="text" required placeholder="Example: Shoes">
+          </div>
+
+          <div class="field">
+            <label for="input-ammount">Amount:</label>
+            <input id="input-ammount" name="amount" type="number" required>
+          </div>
+
+          <div>
+            <h2>Transaction type</h2>
+
+            <input id="input-expense" name="type" type="radio" value="expense" checked>
+            <label for="input-expense">Expense</label>
+
+            <input id="input-income" name="type" type="radio" value="income">
+            <label for="input-income">Income</label>
+          </div>
+
+          <button data-js-id="formSubmitButton" type="submit">Add</button>
+      `;
+      dom.modalForm.onsubmit = (e) => {
+        const data = Object.fromEntries(new FormData(e.target));
+
+        pubSub.publish(events.newTransactionSubmitted, {
+          ...data,
+          amount: parseFloat(data.amount),
+        });
+        closeModal();
+
+        e.preventDefault();
+      };
+
+      dom.dialog.setAttribute("open", true);
+    }
+
+    function closeModal() {
+      dom.dialog.close();
+    }
+
+    function refreshTransactionList(transactions) {
+      dom.transactionList.innerHTML = transactions.length
+        ? ""
+        : `<span id="no-transactions">Oops! No transaction here, click the "Add new" button to create one.</span>`;
+
+      transactions.forEach((transaction) => {
+        const node = document.createElement("li");
+        node.className = "transaction-item";
+        node.innerHTML = `
+          <div>
+            <p class="price">${
+              transaction.type === "income" ? "+" : "-"
+            } $${transaction.amount.toLocaleString()}</p>
+            <p class="description">${transaction.description}</p>
+          </div>
+          <div>
+            <button data-transaction-id="${
+              transaction.id
+            }" class="icon-btn" type="button" title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M14.06,9L15,9.94L5.92,19H5V18.08L14.06,9M17.66,3C17.41,3 17.15,3.1 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18.17,3.09 17.92,3 17.66,3M14.06,6.19L3,17.25V21H6.75L17.81,9.94L14.06,6.19Z" />
+              </svg>
+            </button>
+            <button data-transaction-id="${
+              transaction.id
+            }" class="icon-btn" type="button" title="Delete">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+              </svg>
+            </button>
+          </div>`;
+        dom.transactionList.appendChild(node);
+      });
+    }
+
+    function updateStats(transactions) {
+      const income = transactions.reduce(
+        (total, transaction) =>
+          transaction.type === "income" ? total + transaction.amount : total,
+        0
+      );
+      const expense = transactions.reduce(
+        (total, transaction) =>
+          transaction.type === "expense" ? total + transaction.amount : total,
+        0
+      );
+      const balance = transactions.reduce(
+        (total, transaction) =>
+          transaction.type === "income"
+            ? total + transaction.amount
+            : total - transaction.amount,
+        0
+      );
+
+      dom.totalIncome.textContent = `$${income.toLocaleString()}`;
+      dom.totalExpense.textContent = `$${expense.toLocaleString()}`;
+      dom.balance.textContent =
+        balance > 0
+          ? `$${balance.toLocaleString()}`
+          : `- $${Math.abs(balance).toLocaleString()}`;
+    }
+
+    return { init };
+  })();
+
+  transaction.init();
+  display.init();
+})();
