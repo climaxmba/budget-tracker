@@ -26,8 +26,31 @@
     transactionDeleteRequested: "transactionDeleteRequested",
   };
 
+  const storage = (() => {
+    function getThemeChoice() {
+      const userTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      return localStorage.getItem("themeChoice") || userTheme;
+    }
+
+    function setThemeChoice(choice) {
+      localStorage.setItem("themeChoice", choice);
+    }
+
+    function getTransactions() {
+      return JSON.parse(localStorage.getItem("transactions")) || [];
+    }
+
+    function setTransactions(transaction) {
+      localStorage.setItem("transactions", JSON.stringify(transaction));
+    }
+
+    return { getThemeChoice, setThemeChoice, getTransactions, setTransactions };
+  })();
+
   const transaction = (() => {
-    let transactions = [];
+    let transactions = storage.getTransactions();
 
     function init() {
       pubSub.subscribe(events.newTransactionSubmitted, _addTransaction);
@@ -42,6 +65,7 @@
     function _addTransaction(data) {
       transactions.push({ ...data, id: _getRandomId() });
       pubSub.publish(events.transactionsChanged, transactions);
+      storage.setTransactions(transactions);
     }
 
     function _getRandomId() {
@@ -64,6 +88,7 @@
         (transaction) => transaction.id !== id
       );
       pubSub.publish(events.transactionsChanged, transactions);
+      storage.setTransactions(transactions);
     }
 
     function _editTransaction({ id, data }) {
@@ -71,6 +96,7 @@
         transaction.id === id ? { ...data, id } : transaction
       );
       pubSub.publish(events.transactionsChanged, transactions);
+      storage.setTransactions(transactions);
     }
 
     return { init };
@@ -78,6 +104,10 @@
 
   const displayController = (() => {
     const dom = {
+      root: document.querySelector("[data-js-id='root']"),
+      toggleThemeButton: document.querySelector(
+        "[data-js-id='toggleThemeButton']"
+      ),
       totalIncome: document.querySelector("[data-js-id='totalIncome']"),
       totalExpense: document.querySelector("[data-js-id='totalExpense']"),
       balance: document.querySelector("[data-js-id='balance']"),
@@ -92,6 +122,7 @@
         "[data-js-id='closeModalButton']"
       ),
     };
+    let themeChoice = storage.getThemeChoice();
 
     function init() {
       pubSub.subscribe(events.transactionsChanged, (data) => {
@@ -103,6 +134,12 @@
         _openEditTransactionModal
       );
 
+      dom.root.setAttribute("data-theme", themeChoice);
+      dom.toggleThemeButton.addEventListener("click", () => {
+        themeChoice = themeChoice === "dark" ? "light" : "dark";
+        dom.root.setAttribute("data-theme", themeChoice);
+        storage.setThemeChoice(themeChoice);
+      });
       dom.addTransactionButton.addEventListener(
         "click",
         _openNewTransactionModal
@@ -113,6 +150,8 @@
         (e) => e.target === e.currentTarget && _closeModal()
       );
       dom.transactionList.addEventListener("click", _handleTransactionAction);
+
+      _refreshTransactionList(storage.getTransactions());
     }
 
     function _openNewTransactionModal() {
@@ -223,7 +262,9 @@
 
       transactions.forEach((transaction) => {
         const node = document.createElement("li");
-        node.className = "transaction-item";
+        node.className = `transaction-item ${
+          transaction.type === "income" ? "income" : "expense"
+        }`;
         node.innerHTML = `
           <div>
             <p class="price">${
