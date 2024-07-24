@@ -76,7 +76,7 @@
     return { init };
   })();
 
-  const display = (() => {
+  const displayController = (() => {
     const dom = {
       totalIncome: document.querySelector("[data-js-id='totalIncome']"),
       totalExpense: document.querySelector("[data-js-id='totalExpense']"),
@@ -131,11 +131,17 @@
           <div>
             <h2>Transaction type</h2>
 
-            <input id="input-expense" name="type" type="radio" value="expense" checked>
-            <label for="input-expense">Expense</label>
+            <div class="radio-field">
+              <input id="input-expense" name="type" type="radio" value="expense" checked>
+              <span></span>
+              <label for="input-expense">Expense</label>
+            </div>
 
-            <input id="input-income" name="type" type="radio" value="income">
-            <label for="input-income">Income</label>
+            <div class="radio-field">
+              <input id="input-income" name="type" type="radio" value="income">
+              <span></span>
+              <label for="input-income">Income</label>
+            </div>
           </div>
 
           <button data-js-id="formSubmitButton" type="submit">Add</button>
@@ -175,15 +181,22 @@
           <div>
             <h2>Transaction type</h2>
 
-            <input id="input-expense" name="type" type="radio" value="expense" ${
-              type === "expense" ? "checked" : ""
-            }>
             <label for="input-expense">Expense</label>
+            <div class="radio-field">
+              <input id="input-expense" name="type" type="radio" value="expense" ${
+                type === "expense" ? "checked" : ""
+              }>
+              <span></span>
+              <label for="input-expense">Expense</label>
+            </div>
 
-            <input id="input-income" name="type" type="radio" value="income" ${
-              type === "income" ? "checked" : ""
-            }>
-            <label for="input-income">Income</label>
+            <div class="radio-field">
+              <input id="input-income" name="type" type="radio" value="income" ${
+                type === "income" ? "checked" : ""
+              }>
+              <span></span>
+              <label for="input-income">Income</label>
+            </div>
           </div>
 
           <button data-js-id="formSubmitButton" type="submit">Save Changes</button>
@@ -285,5 +298,5 @@
   })();
 
   transaction.init();
-  display.init();
+  displayController.init();
 })();
