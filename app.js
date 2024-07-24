@@ -1,17 +1,17 @@
 (() => {
   const pubSub = (function () {
-    let events = {};
+    let _events = {};
 
     function subscribe(event, fn) {
-      events[event] ? events[event].push(fn) : (events[event] = [fn]);
+      _events[event] ? _events[event].push(fn) : (_events[event] = [fn]);
     }
     function unSubscribe(event, fn) {
-      if (events[event]) {
-        events[event] = events[event].filter((func) => func !== fn);
+      if (_events[event]) {
+        _events[event] = _events[event].filter((func) => func !== fn);
       }
     }
     function publish(event, data) {
-      if (events[event]) events[event].forEach((fn) => fn(data));
+      if (_events[event]) _events[event].forEach((fn) => fn(data));
     }
 
     return { subscribe, unSubscribe, publish };
@@ -50,7 +50,7 @@
   })();
 
   const transaction = (() => {
-    let transactions = storage.getTransactions();
+    let _transactions = storage.getTransactions();
 
     function init() {
       pubSub.subscribe(events.newTransactionSubmitted, _addTransaction);
@@ -63,47 +63,47 @@
     }
 
     function _addTransaction(data) {
-      transactions.push({ ...data, id: _getRandomId() });
-      pubSub.publish(events.transactionsChanged, transactions);
-      storage.setTransactions(transactions);
+      _transactions.push({ ...data, id: _getRandomId() });
+      pubSub.publish(events.transactionsChanged, _transactions);
+      storage.setTransactions(_transactions);
     }
 
     function _getRandomId() {
       const id = Math.floor(Math.random() * 10000000).toString(16);
 
       // Recursively try to generate a unique random id
-      if (transactions.every((transaction) => transaction.id !== id)) return id;
+      if (_transactions.every((transaction) => transaction.id !== id)) return id;
       else return _getRandomId();
     }
 
     function _sendTransactionData(id) {
       pubSub.publish(
         events.editTransactionDataRecieved,
-        transactions.filter((transaction) => transaction.id === id)[0]
+        _transactions.filter((transaction) => transaction.id === id)[0]
       );
     }
 
     function _deleteTransaction(id) {
-      transactions = transactions.filter(
+      _transactions = _transactions.filter(
         (transaction) => transaction.id !== id
       );
-      pubSub.publish(events.transactionsChanged, transactions);
-      storage.setTransactions(transactions);
+      pubSub.publish(events.transactionsChanged, _transactions);
+      storage.setTransactions(_transactions);
     }
 
     function _editTransaction({ id, data }) {
-      transactions = transactions.map((transaction) =>
+      _transactions = _transactions.map((transaction) =>
         transaction.id === id ? { ...data, id } : transaction
       );
-      pubSub.publish(events.transactionsChanged, transactions);
-      storage.setTransactions(transactions);
+      pubSub.publish(events.transactionsChanged, _transactions);
+      storage.setTransactions(_transactions);
     }
 
     return { init };
   })();
 
   const displayController = (() => {
-    const dom = {
+    const _dom = {
       root: document.querySelector("[data-js-id='root']"),
       toggleThemeButton: document.querySelector(
         "[data-js-id='toggleThemeButton']"
@@ -122,7 +122,7 @@
         "[data-js-id='closeModalButton']"
       ),
     };
-    let themeChoice = storage.getThemeChoice();
+    let _themeChoice = storage.getThemeChoice();
 
     function init() {
       pubSub.subscribe(events.transactionsChanged, (data) => {
@@ -134,29 +134,29 @@
         _openEditTransactionModal
       );
 
-      dom.root.setAttribute("data-theme", themeChoice);
-      dom.toggleThemeButton.addEventListener("click", () => {
-        themeChoice = themeChoice === "dark" ? "light" : "dark";
-        dom.root.setAttribute("data-theme", themeChoice);
-        storage.setThemeChoice(themeChoice);
+      _dom.root.setAttribute("data-theme", _themeChoice);
+      _dom.toggleThemeButton.addEventListener("click", () => {
+        _themeChoice = _themeChoice === "dark" ? "light" : "dark";
+        _dom.root.setAttribute("data-theme", _themeChoice);
+        storage.setThemeChoice(_themeChoice);
       });
-      dom.addTransactionButton.addEventListener(
+      _dom.addTransactionButton.addEventListener(
         "click",
         _openNewTransactionModal
       );
-      dom.closeModalButton.addEventListener("click", _closeModal);
-      dom.dialog.addEventListener(
+      _dom.closeModalButton.addEventListener("click", _closeModal);
+      _dom.dialog.addEventListener(
         "click",
         (e) => e.target === e.currentTarget && _closeModal()
       );
-      dom.transactionList.addEventListener("click", _handleTransactionAction);
+      _dom.transactionList.addEventListener("click", _handleTransactionAction);
 
       _refreshTransactionList(storage.getTransactions());
     }
 
     function _openNewTransactionModal() {
-      dom.modalTitle.textContent = "New Transaction";
-      dom.modalForm.innerHTML = `
+      _dom.modalTitle.textContent = "New Transaction";
+      _dom.modalForm.innerHTML = `
           <div class="field">
             <label for="input-description">Description:</label>
             <input id="input-description" name="description" type="text" required placeholder="Example: Shoes">
@@ -185,7 +185,7 @@
 
           <button data-js-id="formSubmitButton" type="submit">Add</button>
       `;
-      dom.modalForm.onsubmit = (e) => {
+      _dom.modalForm.onsubmit = (e) => {
         const data = Object.fromEntries(new FormData(e.target));
 
         pubSub.publish(events.newTransactionSubmitted, {
@@ -197,16 +197,16 @@
         e.preventDefault();
       };
 
-      dom.dialog.setAttribute("open", true);
+      _dom.dialog.setAttribute("open", true);
     }
 
     function _closeModal() {
-      dom.dialog.close();
+      _dom.dialog.close();
     }
 
     function _openEditTransactionModal({ description, amount, type, id }) {
-      dom.modalTitle.textContent = "Edit Transaction";
-      dom.modalForm.innerHTML = `
+      _dom.modalTitle.textContent = "Edit Transaction";
+      _dom.modalForm.innerHTML = `
           <div class="field">
             <label for="input-description">Description:</label>
             <input id="input-description" name="description" type="text" placeholder="Example: Shoes" value="${description}" required>
@@ -240,7 +240,7 @@
 
           <button data-js-id="formSubmitButton" type="submit">Save Changes</button>
       `;
-      dom.modalForm.onsubmit = (e) => {
+      _dom.modalForm.onsubmit = (e) => {
         const data = Object.fromEntries(new FormData(e.target));
 
         pubSub.publish(events.transactionEditRequested, {
@@ -252,11 +252,11 @@
         e.preventDefault();
       };
 
-      dom.dialog.setAttribute("open", true);
+      _dom.dialog.setAttribute("open", true);
     }
 
     function _refreshTransactionList(transactions) {
-      dom.transactionList.innerHTML = transactions.length
+      _dom.transactionList.innerHTML = transactions.length
         ? ""
         : `<span id="no-transactions">Oops! No transaction here, click the "Add new" button to create one.</span>`;
 
@@ -290,7 +290,7 @@
               </svg>
             </button>
           </div>`;
-        dom.transactionList.appendChild(node);
+        _dom.transactionList.appendChild(node);
       });
     }
 
@@ -313,9 +313,9 @@
         0
       );
 
-      dom.totalIncome.textContent = `$${income.toLocaleString()}`;
-      dom.totalExpense.textContent = `$${expense.toLocaleString()}`;
-      dom.balance.textContent =
+      _dom.totalIncome.textContent = `$${income.toLocaleString()}`;
+      _dom.totalExpense.textContent = `$${expense.toLocaleString()}`;
+      _dom.balance.textContent =
         balance >= 0
           ? `$${balance.toLocaleString()}`
           : `- $${Math.abs(balance).toLocaleString()}`;
