@@ -26,19 +26,19 @@
     const transactions = [];
 
     function init() {
-      pubSub.subscribe(events.newTransactionSubmitted, addTransaction);
+      pubSub.subscribe(events.newTransactionSubmitted, _addTransaction);
     }
 
-    function getRandomId() {
+    function _getRandomId() {
       const id = Math.floor(Math.random() * 10000000).toString(16);
 
       // Recursively try to generate a unique random id
       if (transactions.every((transaction) => transaction.id !== id)) return id;
-      else return getRandomId();
+      else return _getRandomId();
     }
 
-    function addTransaction(data) {
-      transactions.push({ ...data, id: getRandomId() });
+    function _addTransaction(data) {
+      transactions.push({ ...data, id: _getRandomId() });
       pubSub.publish(events.transactionsChanged, transactions);
     }
 
@@ -64,18 +64,18 @@
 
     function init() {
       pubSub.subscribe(events.transactionsChanged, (data) => {
-        refreshTransactionList(data);
-        updateStats(data);
+        _refreshTransactionList(data);
+        _updateStats(data);
       });
       dom.addTransactionButton.addEventListener(
         "click",
-        openNewTransactionModal
+        _openNewTransactionModal
       );
-      dom.closeModalButton.addEventListener("click", closeModal)
-      dom.dialog.addEventListener("click",(e) => e.target === e.currentTarget && closeModal())
+      dom.closeModalButton.addEventListener("click", _closeModal)
+      dom.dialog.addEventListener("click",(e) => e.target === e.currentTarget && _closeModal())
     }
 
-    function openNewTransactionModal() {
+    function _openNewTransactionModal() {
       dom.modalTitle.textContent = "New Transaction";
       dom.modalForm.innerHTML = `
           <div class="field">
@@ -107,7 +107,7 @@
           ...data,
           amount: parseFloat(data.amount),
         });
-        closeModal();
+        _closeModal();
 
         e.preventDefault();
       };
@@ -115,11 +115,11 @@
       dom.dialog.setAttribute("open", true);
     }
 
-    function closeModal() {
+    function _closeModal() {
       dom.dialog.close();
     }
 
-    function refreshTransactionList(transactions) {
+    function _refreshTransactionList(transactions) {
       dom.transactionList.innerHTML = transactions.length
         ? ""
         : `<span id="no-transactions">Oops! No transaction here, click the "Add new" button to create one.</span>`;
@@ -156,7 +156,7 @@
       });
     }
 
-    function updateStats(transactions) {
+    function _updateStats(transactions) {
       const income = transactions.reduce(
         (total, transaction) =>
           transaction.type === "income" ? total + transaction.amount : total,
