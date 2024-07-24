@@ -159,7 +159,7 @@
       _dom.modalForm.innerHTML = `
           <div class="field">
             <label for="input-description">Description:</label>
-            <input id="input-description" name="description" type="text" required placeholder="Example: Shoes">
+            <input id="input-description" name="description" type="text" required placeholder="Example: Budget">
           </div>
 
           <div class="field">
@@ -171,13 +171,13 @@
             <h2>Transaction type</h2>
 
             <div class="radio-field">
-              <input id="input-expense" name="type" type="radio" value="expense" checked>
+              <input id="input-expense" name="type" type="radio" value="expense">
               <span></span>
               <label for="input-expense">Expense</label>
             </div>
 
             <div class="radio-field">
-              <input id="input-income" name="type" type="radio" value="income">
+              <input id="input-income" name="type" type="radio" value="income" checked>
               <span></span>
               <label for="input-income">Income</label>
             </div>
@@ -209,7 +209,7 @@
       _dom.modalForm.innerHTML = `
           <div class="field">
             <label for="input-description">Description:</label>
-            <input id="input-description" name="description" type="text" placeholder="Example: Shoes" value="${description}" required>
+            <input id="input-description" name="description" type="text" placeholder="Example: Budget" value="${description}" required>
           </div>
 
           <div class="field">
