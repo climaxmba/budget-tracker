@@ -5,7 +5,8 @@ A Budget Tracker application that allows users to manage their finances by addin
 ## 🚀 Usage
 
 ### 🌐 Open in browser
-Click <a href="https://climaxmba.github.io/budget-tracker/" target="_blank">https://climaxmba.github.io/budget-tracker/</a> to see the demo in your browser.
+Click [https://climaxmba.github.io/budget-tracker/](https://climaxmba.github.io/budget-tracker/) to see the demo in your browser.
+> Alternatively, you could clone this repository using ssh, `git clone git@github.com:climaxmba/budget-tracker.git` or `git clone https://github.com/climaxmba/budget-tracker.git` with HTTPS. Then open the `index.html` file in the directory.
 
 ### ➕ Create a new Transaction
 Click on the **Add New** button and a fill in the transaction description, amount and select transaction type, then click **Add**.
