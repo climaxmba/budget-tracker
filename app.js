@@ -72,7 +72,8 @@
       const id = Math.floor(Math.random() * 10000000).toString(16);
 
       // Recursively try to generate a unique random id
-      if (_transactions.every((transaction) => transaction.id !== id)) return id;
+      if (_transactions.every((transaction) => transaction.id !== id))
+        return id;
       else return _getRandomId();
     }
 
@@ -151,7 +152,9 @@
       );
       _dom.transactionList.addEventListener("click", _handleTransactionAction);
 
-      _refreshTransactionList(storage.getTransactions());
+      const initialTransactions = storage.getTransactions();
+      _refreshTransactionList(initialTransactions);
+      _updateStats(initialTransactions);
     }
 
     function _openNewTransactionModal() {
